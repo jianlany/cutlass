@@ -250,7 +250,7 @@ struct CollectiveMma<
   };
 
   // Device side kernel params
-  struct Params {
+  struct alignas(64) Params {
     // Assumption: StrideA is congruent with Problem_MK
     using TMA_A = decltype(make_tma_copy_A_sm90(
         GmemTiledCopyA{},
@@ -265,8 +265,8 @@ struct CollectiveMma<
         SmemLayoutB{}(_,_,cute::Int<0>{}),
         TileShape{},
         ClusterShape{}));
-    TMA_A tma_load_a;
-    TMA_B tma_load_b;
+    alignas(64) TMA_A tma_load_a;
+    alignas(64) TMA_B tma_load_b;
     uint32_t tma_transaction_bytes = TmaTransactionBytes;
     void* tensormaps;
     InternalElementA const** ptr_A;

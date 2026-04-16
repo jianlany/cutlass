@@ -88,6 +88,8 @@ using namespace cute;
 /// GEMM kernel configurations
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+//nvcc .\48_hopper_warp_specialized_gemm.cu -I ..\..\include\ -I ..\..\tools\util\include -I..\common\ -std=c++17 -O3 --generate-code=arch=compute_90a,code=[compute_90a,sm_90a] --expt-relaxed-constexpr -DCUTLASS_VERSIONS_GENERATED -DNDEBUG -DCUTLASS_ENABLE_TENSOR_CORE_MMA=1 -DCUTE_SM90_EXTENDED_MMA_SHAPRES_ENABLED -DCUTLASS_TEST_LEVEL=0 -o hopper_f16_tensorop_gemm
+
 // A matrix configuration
 using         ElementA    = float;                                          // Element type for A matrix operand
 using         LayoutA     = cutlass::layout::RowMajor;                      // Layout type for A matrix operand
@@ -107,8 +109,8 @@ constexpr int AlignmentC  = 128 / cutlass::sizeof_bits<ElementC>::value;    // M
 using ElementAccumulator  = float;                                          // Element type for internal accumulation
 using ArchTag             = cutlass::arch::Sm90;                            // Tag indicating the minimum SM that supports the intended feature
 using OperatorClass       = cutlass::arch::OpClassTensorOp;                 // Operator class tag
-using TileShape           = Shape<_128,_128,_32>;                           // Threadblock-level tile size
-using ClusterShape        = Shape<_4,_2,_1>;                                // Shape of the threadblocks in a cluster
+using TileShape           = Shape<_128,_128,_64>;                           // Threadblock-level tile size
+using ClusterShape        = Shape<_2,_1,_1>;                                // Shape of the threadblocks in a cluster
 using StageCountType = cutlass::gemm::collective::StageCountAuto;           // Stage count maximized based on the tile size
 using KernelSchedule = cutlass::gemm::collective::KernelScheduleAuto;       // Kernel to launch based on the default setting in the Collective Builder
 
@@ -119,7 +121,7 @@ using CollectiveEpilogue = typename cutlass::epilogue::collective::CollectiveBui
     ElementAccumulator, ElementAccumulator,
     ElementC, LayoutC, AlignmentC,
     ElementC, LayoutC, AlignmentC,
-    cutlass::epilogue::collective::EpilogueScheduleAuto
+    cutlass::epilogue::TmaWarpSpecialized
   >::CollectiveOp;
 
 using CollectiveMainloop = typename cutlass::gemm::collective::CollectiveBuilder<
@@ -130,7 +132,7 @@ using CollectiveMainloop = typename cutlass::gemm::collective::CollectiveBuilder
     TileShape, ClusterShape,
     cutlass::gemm::collective::StageCountAutoCarveout<
       static_cast<int>(sizeof(typename CollectiveEpilogue::SharedStorage))>,
-    cutlass::gemm::collective::KernelScheduleAuto
+    cutlass::gemm::KernelTmaWarpSpecializedPingpong
   >::CollectiveOp;
 
 using GemmKernel = cutlass::gemm::kernel::GemmUniversal<
@@ -419,6 +421,7 @@ int run(Options &options)
 
   // Correctness / Warmup iteration
   CUTLASS_CHECK(gemm.run());
+  CUDA_CHECK(cudaDeviceSynchronize());
 
   // Check if output from CUTLASS kernel and reference kernel are equal or not
   Result result;
