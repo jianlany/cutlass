@@ -111,7 +111,7 @@ struct Copy_Traits<SM90_TMA_LOAD, NumBitsPerTMA, AuxParams_>
   using RefLayout = SrcLayout;
 
   // SM90_TMA_LOAD arguments
-  TmaDescriptor tma_desc_;
+  alignas(64) TmaDescriptor tma_desc_;
   using AuxParams = AuxParams_;
   AuxParams aux_params_;
 
@@ -269,7 +269,7 @@ struct Copy_Traits<SM90_TMA_LOAD_MULTICAST, NumBitsPerTMA, AuxParams_>
   using RefLayout = SrcLayout;
 
   // SM90_TMA_LOAD_MULTICAST arguments
-  TmaDescriptor tma_desc_;
+  alignas(64) TmaDescriptor tma_desc_;
   using AuxParams = AuxParams_;
   AuxParams aux_params_;
 
@@ -371,7 +371,7 @@ struct Copy_Traits<SM90_TMA_STORE, NumBitsPerTMA, AuxParams_>
   using RefLayout = SrcLayout;
 
   // SM90_TMA_STORE arguments
-  TmaDescriptor tma_desc_;
+  alignas(64) TmaDescriptor tma_desc_;
   using AuxParams = AuxParams_;
   AuxParams aux_params_;
 
@@ -484,7 +484,7 @@ struct Copy_Traits<SM90_TMA_REDUCE_ADD, NumBitsPerTMA, AuxParams_>
   using RefLayout = SrcLayout;
 
   // SM90_TMA_REDUCE_ADD arguments
-  TmaDescriptor tma_desc_;
+  alignas(64) TmaDescriptor tma_desc_;
   using AuxParams = AuxParams_;
   AuxParams aux_params_;
 

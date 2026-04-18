@@ -120,7 +120,7 @@ struct Copy_Traits<SM90_TMA_LOAD_IM2COL, NumBitsPerTMA, TMATensor>
   // Reference map from (thr,val) to bit
   using RefLayout = SrcLayout;
 
-  Im2ColTmaDescriptor tma_desc_;
+  alignas(64) Im2ColTmaDescriptor tma_desc_;
   TMATensor tma_tensor_;
 
   CUTE_HOST_DEVICE constexpr
@@ -232,7 +232,7 @@ struct Copy_Traits<SM90_TMA_LOAD_IM2COL_MULTICAST, NumBitsPerTMA, TMATensor>
   // Reference map from (thr,val) to bit
   using RefLayout = SrcLayout;
 
-  Im2ColTmaDescriptor tma_desc_;
+  alignas(64) Im2ColTmaDescriptor tma_desc_;
   TMATensor tma_tensor_;
 
   CUTE_HOST_DEVICE constexpr
@@ -319,7 +319,7 @@ struct Copy_Traits<SM90_TMA_STORE_IM2COL, NumBitsPerTMA, TMATensor>
   using RefLayout = SrcLayout;
 
   // SM90_TMA_STORE_IM2COL arguments
-  Im2ColTmaDescriptor tma_desc_;
+  alignas(64) Im2ColTmaDescriptor tma_desc_;
   TMATensor tma_tensor_;
 
   // Return TmaDescriptor/TensorMap
